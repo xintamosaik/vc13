@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
+
 	"os"
 )
 
 // This will do SSR
 
-
-
 func main() {
+	log_level := "info"
 	components_dir := "components"
 	src_dir := "src"
 	content_filename := "content.html"
@@ -38,26 +38,34 @@ func main() {
 		return
 	}
 	// So there are folders in the src dir. Good.
-	fmt.Println("Source directory exists and contains files:", src_dir)
+	if log_level == "debug" {
+		fmt.Println("Source directory exists and contains files:", src_dir)
+	}
 
 	// we loop over the folders in the src directory
 	for _, file := range files {
 		if file.IsDir() {
-			fmt.Println("Found directory in source:", file.Name())
+			if log_level == "debug" {
+				fmt.Println("Found directory in source:", file.Name())
+			}
 			// Check if the content file exists in the directory
 			contentPath := fmt.Sprintf("%s/%s/%s", src_dir, file.Name(), content_filename)
 			if _, err := os.Stat(contentPath); os.IsNotExist(err) {
 				fmt.Println("Content file does not exist in directory:", contentPath)
 				continue
 			}
-			fmt.Println("Content file found:", contentPath)
+			if log_level == "debug" {
+				fmt.Println("Content file found:", contentPath)
+			}
 			// Check if the config file exists in the directory
 			configPath := fmt.Sprintf("%s/%s/%s", src_dir, file.Name(), config_filename)
 			if _, err := os.Stat(configPath); os.IsNotExist(err) {
 				fmt.Println("Config file does not exist in directory:", configPath)
 				continue
 			}
-			fmt.Println("Config file found:", configPath)
+			if log_level == "debug" {
+				fmt.Println("Config file found:", configPath)
+			}
 			// Here we would normally render the component using the content and config files
 			// For now, we just print a message
 			fmt.Printf("Rendering component: %s with content: %s and config: %s\n", file.Name(), contentPath, configPath)
@@ -66,6 +74,4 @@ func main() {
 		}
 	}
 
-
-	fmt.Println	("Server-side rendering is not implemented yet.")
 }
