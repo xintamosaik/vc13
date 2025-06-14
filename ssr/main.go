@@ -5,15 +5,18 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	
 )
 
 // This will do SSR
 // global vars
-
-const components_dir = "components"
-const src_dir = "src"
-const content_filename = "content.html"
-const config_filename = "config.txt"
+const (
+	src_dir          = "src"
+	components_dir   = "components"
+	content_filename = "content.html"
+	config_filename  = "config.txt"
+	output_dir       = "static"
+)
 
 // enum for log levels
 type LogLevel int
@@ -69,7 +72,10 @@ func main() {
 
 	// After we are done we need the end of the html document
 	endContent := "</body></html>" // This is the end of the HTML document
-
+	if err := os.MkdirAll(output_dir, os.ModePerm); err != nil {
+		fmt.Println("Error creating static directory:", err)
+		return
+	}
 	// we loop over the folders in the src directory
 	for _, file := range files {
 		contentCache := make([]string, 0)                         // This will hold the content for the current folder
@@ -161,11 +167,8 @@ func main() {
 
 		// 5. Write the cache to the content file
 		// Naming: <folder_name> in src -> <content_filename>.html and be put in static/
-		outputFile := filepath.Join("static", file.Name()+".html")
-		if err := os.MkdirAll("static", os.ModePerm); err != nil {
-			fmt.Println("Error creating static directory:", err)
-			return
-		}
+		outputFile := filepath.Join(output_dir, file.Name()+".html")
+
 		log(debug, fmt.Sprintf("Output file path: %s", outputFile))
 
 		// Write the content cache to the output file
