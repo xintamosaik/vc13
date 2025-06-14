@@ -9,10 +9,10 @@ import (
 // This will do SSR
 // global vars
 
-var components_dir = "components"
-var src_dir = "src"
-var content_filename = "content.html"
-var config_filename = "config.txt"
+const components_dir = "components"
+const src_dir = "src"
+const content_filename = "content.html"
+const config_filename = "config.txt"
 
 // enum for log levels
 type LogLevel int
