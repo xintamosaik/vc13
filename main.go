@@ -53,10 +53,6 @@ const (
 	css_filename     = "styles.css"
 )
 
-type HTML string
-
-const endContent HTML = `</body></html>`
-
 func main() {
 
 	// Return, if there is no src directory
@@ -81,14 +77,6 @@ func main() {
 		return
 	}
 
-	// Get the html structure for the start of the html document
-	startFile := filepath.Join(components_dir, "start.html")
-	startContent, err := os.ReadFile(startFile)
-	if err != nil {
-		log.Println("Error reading start file:", startFile, err)
-		return
-	}
-
 	// Create the output directory if it does not exist
 	if err := os.MkdirAll(output_dir, os.ModePerm); err != nil {
 		log.Println("Error creating static directory:", err)
@@ -99,8 +87,7 @@ func main() {
 
 	// Loop over each folder in the source directory
 	for _, file := range files {
-		htmlCache := make([]string, 0)                      // This will hold the content for the current folder
-		htmlCache = append(htmlCache, string(startContent)) // Start with the start content
+		htmlCache := make([]string, 0) // This will hold the content for the current folder
 
 		// Skip if the file is not a directory
 		if file.IsDir() == false {
@@ -185,13 +172,18 @@ func main() {
 		// Add the content file to the cache
 		htmlCache = append(htmlCache, string(contentData))
 
-		// Add the end html content to the cache
-		htmlCache = append(htmlCache, string(endContent))
-
 		// Write the cache to the content file. E.g. static/about.html
+
 		outputFile := filepath.Join(output_dir, file.Name()+".html")
-		if err := os.WriteFile(outputFile, []byte(strings.Join(htmlCache, "\n")), 0644); err != nil {
-			log.Println("Error writing to output file:", outputFile, err)
+		file, err := os.Create(outputFile)
+		if err != nil {
+			log.Println("Error creating output file:", outputFile, err)
+			return
+		}
+		defer file.Close()
+		err = components.Document(strings.Join(htmlCache, "")).Render(context.Background(), file)
+		if err != nil {
+			log.Println("Error rendering document to file:", outputFile, err)
 			return
 		}
 
@@ -225,7 +217,5 @@ func main() {
 		log.Println("Successfully wrote CSS files to:", cssOutputFile)
 
 	}
-
-	
 
 }
