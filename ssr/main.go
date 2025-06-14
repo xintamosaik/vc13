@@ -7,13 +7,16 @@ import (
 )
 
 // This will do SSR
+// global vars
+
+var log_level = "info"
+var components_dir = "components"
+var src_dir = "src"
+var content_filename = "content.html"
+var config_filename = "config.txt"
 
 func main() {
-	log_level := "info"
-	components_dir := "components"
-	src_dir := "src"
-	content_filename := "content.html"
-	config_filename := "config.txt"
+	
 
 	// Is there even a src directory?
 	if _, err := os.Stat(src_dir); os.IsNotExist(err) {
@@ -63,12 +66,17 @@ func main() {
 	if log_level == "debug" {
 		fmt.Println("Start file content read successfully:", startFile)
 	}
+	
 
 	// 5. endContent:
-	endContent := "</body></html>" // This is the end of the HTML document
+	endContent := "</body></html>"                 // This is the end of the HTML document
+
 
 	// we loop over the folders in the src directory
 	for _, file := range files {
+		contentCache := make([]string, 0) // This will hold the content for the current folder
+		contentCache = append(contentCache, string(startContent)) // Start with the start content
+
 		if file.IsDir() == false {
 			fmt.Println("Skipping non-directory file in source:", file.Name())
 			continue
@@ -124,8 +132,63 @@ func main() {
 
 		// 3b. For each word, check if there is a file with that name in the components directory
 		for _, word := range words {
-			fmt.Println("Processing word:", word)
+	
+			// is there a file named word + ".html" in the components directory?
+			componentFile := fmt.Sprintf("%s/%s.html", components_dir, word)
+			if _, err := os.Stat(componentFile); os.IsNotExist(err) {
+				fmt.Println("Component file does not exist for word:", word, "at", componentFile)
+				continue
+			}
+			if log_level == "debug" {
+				fmt.Println("Component file found for word:", word, "at", componentFile)
+			}
+			// 3c. Read the component file
+			componentContent, err := os.ReadFile(componentFile)
+			if err != nil {
+				fmt.Println("Error reading component file:", componentFile, err)
+				continue
+			}
+			if log_level == "debug" {
+				fmt.Println("Component file content read successfully for word:", word, "at", componentFile)
+			}
+
+			// 3d. Add the component content to the content cache
+			contentCache = append(contentCache, string(componentContent))
+			if log_level == "debug" {
+				fmt.Println("Component content added to cache for word:", word)
+			}
+
+
+
 		}
+
+		// 4. Add the end content to the cache
+		contentCache = append(contentCache, endContent)
+		if log_level == "debug" {
+			fmt.Println("End content added to cache for directory:", file.Name())
+		}
+		// 5. Write the cache to the content file
+		// Naming: <folder_name> in src -> <content_filename>.html and be put in static/
+		outputFile := fmt.Sprintf("static/%s.html", file.Name())
+		if err := os.MkdirAll("static", os.ModePerm); err != nil {
+			fmt.Println("Error creating static directory:", err)
+			return
+		}
+		if log_level == "debug" {
+			fmt.Println("Static directory created or already exists")
+		}
+		// Write the content cache to the output file
+		if err := os.WriteFile(outputFile, []byte(strings.Join(contentCache, "\n")), 0644); err != nil {
+			fmt.Println("Error writing to output file:", outputFile, err)
+			return
+		}
+		if log_level == "debug" {
+			fmt.Println("Output file written successfully:", outputFile)
+		}
+		fmt.Println("Successfully processed directory:", file.Name(), "Output written to:", outputFile)
+		// Reset the content cache for the next directory
+		
+		
 
 	}
 
