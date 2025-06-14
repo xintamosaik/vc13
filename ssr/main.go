@@ -47,6 +47,7 @@ const (
 	content_filename = "content.html"
 	config_filename  = "config.txt"
 	output_dir       = "static"
+	css_filename     = "styles.css"
 )
 
 type HTML string
@@ -90,6 +91,8 @@ func main() {
 		log.Println("Error creating static directory:", err)
 		return
 	}
+	// We collect components that have custom css files. (an array of filenames). We need a Set to avoid duplicates.
+	css_files := make(map[string]bool)
 
 	// Loop over each folder in the source directory
 	for _, file := range files {
@@ -141,6 +144,7 @@ func main() {
 
 		// Loop over the component file names and add the content to the cache
 		for _, component_name := range component_names {
+			log.Println("Processing component:", component_name)
 
 			// Skip if the component file does not exist
 			componentFile := filepath.Join(components_dir, component_name+".html")
@@ -158,6 +162,13 @@ func main() {
 
 			// Add the html content to the html cache
 			htmlCache = append(htmlCache, string(componentContent))
+
+			// Check if there is a css file for the component
+			cssFile := filepath.Join(components_dir, component_name+".css")
+			if _, err := os.Stat(cssFile); err == nil {
+				// If the css file exists, add it to the css_files set
+				css_files[component_name] = true
+			}
 		}
 
 		// Read the content of the content.html file and skip if there is an error
@@ -182,5 +193,33 @@ func main() {
 		}
 
 		log.Println("Successfully processed directory:", file.Name(), "Output written to:", outputFile)
+
+		// We finally collect all the css files that were used in the components
+		if len(css_files) == 0 {
+			log.Println("No CSS files found for components in directory:", file.Name())
+		}
+		cssCache := make([]string, 0)
+		for cssFile := range css_files {
+			cssPath := filepath.Join(components_dir, cssFile+".css")
+			if _, err := os.Stat(cssPath); os.IsNotExist(err) {
+				log.Println("CSS file does not exist for component:", cssFile, "at", cssPath)
+				continue
+			}
+			cssContent, err := os.ReadFile(cssPath)
+			if err != nil {
+				log.Println("Error reading CSS file:", cssPath, err)
+				continue
+			}
+			cssCache = append(cssCache, string(cssContent))
+		}
+
+		// Write the css files to a single file in the static directory
+		cssOutputFile := filepath.Join(output_dir, css_filename)
+		if err := os.WriteFile(cssOutputFile, []byte(strings.Join(cssCache, "\n")), 0644); err != nil {
+			log.Println("Error writing to CSS output file:", cssOutputFile, err)
+			return
+		}
+		log.Println("Successfully wrote CSS files to:", cssOutputFile)
+
 	}
 }
