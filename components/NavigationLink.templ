@@ -2,7 +2,7 @@ package components
 
 templ NavigationLink(title, href string) {
 	<li>
-		<a href={ href } aria-label="navigation link" title={title}>
+		<a href={href} title={"Navigate to " + title} aria-label="navigation link" aria-roledescription="navigation link">
 			{title}
 		</a>
 	</li>
