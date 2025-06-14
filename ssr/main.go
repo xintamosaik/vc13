@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -58,7 +59,7 @@ func main() {
 	log(debug, fmt.Sprintf("Source directory exists and contains %d files", len(files)))
 
 	// We need the html structure which is in start.html file. It's mostly html boilerplate but also includes <head>
-	startFile := fmt.Sprintf("%s/start.html", components_dir)
+	startFile := filepath.Join(components_dir, "start.html")
 	startContent, err := os.ReadFile(startFile)
 	if err != nil {
 		fmt.Println("Error reading start file:", startFile, err)
@@ -81,7 +82,7 @@ func main() {
 		log(debug, fmt.Sprintf("Processing directory: %s", file.Name()))
 
 		// Check if the content file exists in the directory
-		contentPath := fmt.Sprintf("%s/%s/%s", src_dir, file.Name(), content_filename)
+		contentPath := filepath.Join(src_dir, file.Name(), content_filename)
 		if _, err := os.Stat(contentPath); os.IsNotExist(err) {
 			fmt.Println("Content file does not exist in directory:", contentPath)
 			continue
@@ -90,7 +91,7 @@ func main() {
 
 		// 2. Read the config file
 		// Check if the config file exists in the directory
-		configPath := fmt.Sprintf("%s/%s/%s", src_dir, file.Name(), config_filename)
+		configPath := filepath.Join(src_dir, file.Name(), config_filename)
 		if _, err := os.Stat(configPath); os.IsNotExist(err) {
 			fmt.Println("Config file does not exist in directory:", configPath)
 			continue
@@ -120,7 +121,7 @@ func main() {
 		for _, component_name := range component_names {
 
 			// is there a file named word + ".html" in the components directory?
-			componentFile := fmt.Sprintf("%s/%s.html", components_dir, component_name)
+			componentFile := filepath.Join(components_dir, component_name+".html")
 			if _, err := os.Stat(componentFile); os.IsNotExist(err) {
 				fmt.Println("Component file does not exist for word:", component_name, "at", componentFile)
 				continue
@@ -142,7 +143,7 @@ func main() {
 
 		// 4a. Add the content file to the cache. So we are in the dir src/<folder_name> and we have the content file in that folder
 		// the name is content.html
-		contentFile := fmt.Sprintf("%s/%s/%s", src_dir, file.Name(), content_filename)
+		contentFile := filepath.Join(src_dir, file.Name(), content_filename)
 		contentData, err := os.ReadFile(contentFile)
 		if err != nil {
 			fmt.Println("Error reading content file:", contentFile, err)
@@ -160,7 +161,7 @@ func main() {
 
 		// 5. Write the cache to the content file
 		// Naming: <folder_name> in src -> <content_filename>.html and be put in static/
-		outputFile := fmt.Sprintf("static/%s.html", file.Name())
+		outputFile := filepath.Join("static", file.Name()+".html")
 		if err := os.MkdirAll("static", os.ModePerm); err != nil {
 			fmt.Println("Error creating static directory:", err)
 			return
