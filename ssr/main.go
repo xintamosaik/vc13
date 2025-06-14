@@ -1,5 +1,39 @@
 package main
 
+/**
+ * This program looks for folders in the src and files in the components directory and compiles them into a static html files.
+ *
+ * It expects the following structure:
+ *
+ * src/
+ * ├── some_folder/
+ * │   ├── content.html
+ * │   └── config.txt
+ * └── another_folder/
+ *     ├── content.html
+ *     └── config.txt
+ *
+ * components/
+ * ├── start.html
+ * ├── some_component.html
+ * └── another_component.html
+ *
+ * The config.txt file in each folder should contain the names of the components to include in the html file.
+ *
+ * The output will be written to the static directory, with each folder's content compiled into a separate html file.
+ * The output structure will look like this:
+ * static/
+ * ├── some_folder.html
+ * └── another_folder.html
+ *
+ * The start.html file will be included at the beginning of each html file, and the end of the html document will be added automatically.
+ * The content.html file will be included at the end of each html file.
+ * The components will be included in the order they are listed in the config.txt file.
+ *
+ * The program will log debug messages to the console, which can be useful for troubleshooting.
+ * You can change the log level by modifying the log_level variable.
+ */
+
 import (
 	"fmt"
 	"log"
