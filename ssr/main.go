@@ -81,8 +81,8 @@ func main() {
 
 	// Loop over each folder in the source directory
 	for _, file := range files {
-		contentCache := make([]string, 0)                         // This will hold the content for the current folder
-		contentCache = append(contentCache, string(startContent)) // Start with the start content
+		htmlCache := make([]string, 0)                         // This will hold the content for the current folder
+		htmlCache = append(htmlCache, string(startContent)) // Start with the start content
 
 		// Skip if the file is not a directory
 		if file.IsDir() == false {
@@ -91,7 +91,7 @@ func main() {
 		}
 		maybe_log(debug, fmt.Sprintf("Processing directory: %s", file.Name()))
 
-		
+		// Skip if the content.html file does not exist in the directory
 		contentPath := filepath.Join(src_dir, file.Name(), content_filename)
 		if _, err := os.Stat(contentPath); os.IsNotExist(err) {
 			log.Println("Content file does not exist in directory:", contentPath)
@@ -99,8 +99,8 @@ func main() {
 		}
 		maybe_log(debug, fmt.Sprintf("Content file found: %s", contentPath))
 
-		// 2. Read the config file
-		// Check if the config file exists in the directory
+		
+		// Skip if the config.txt file does not exist in the directory
 		configPath := filepath.Join(src_dir, file.Name(), config_filename)
 		if _, err := os.Stat(configPath); os.IsNotExist(err) {
 			log.Println("Config file does not exist in directory:", configPath)
@@ -108,6 +108,7 @@ func main() {
 		}
 		maybe_log(debug, fmt.Sprintf("Config file found: %s", configPath))
 
+		// Read the config.txt file and skip if it is empty
 		configContent, err := os.ReadFile(configPath)
 		if err != nil {
 			log.Println("Error reading config file:", configPath, err)
@@ -115,8 +116,8 @@ func main() {
 		}
 		maybe_log(debug, fmt.Sprintf("Config file content read successfully: %s", configPath))
 
-		// 3. Try to get html files for all the component_names in the config file
-		// 3a. make component_names out of the config file. Each line has one word
+		
+		// Extract all filenames (words) from the config file
 		component_names := make([]string, 0)
 		lines := strings.Split(string(configContent), "\n")
 		for _, line := range lines {
@@ -127,10 +128,17 @@ func main() {
 		}
 		maybe_log(debug, fmt.Sprintf("Extracted %d words from config file", len(component_names)))
 
-		// 3b. For each word, check if there is a file with that name in the components directory
+		// Skip if there are no valid component names in the config file	
+		if len(component_names) == 0 {
+			log.Println("No valid component names found in config file:", configPath)
+			continue
+		}
+		maybe_log(debug, fmt.Sprintf("Component names: %v", component_names))
+
+		// Loop over the component file names and add the content to the cache
 		for _, component_name := range component_names {
 
-			// is there a file named word + ".html" in the components directory?
+			// Skip if the component file does not exist
 			componentFile := filepath.Join(components_dir, component_name+".html")
 			if _, err := os.Stat(componentFile); os.IsNotExist(err) {
 				log.Println("Component file does not exist for word:", component_name, "at", componentFile)
@@ -138,7 +146,7 @@ func main() {
 			}
 			maybe_log(debug, fmt.Sprintf("Component file found for word: %s at %s", component_name, componentFile))
 
-			// 3c. Read the component file
+			// Skip if there is an error reading the component file
 			componentContent, err := os.ReadFile(componentFile)
 			if err != nil {
 				log.Println("Error reading component file:", componentFile, err)
@@ -146,13 +154,13 @@ func main() {
 			}
 			maybe_log(debug, fmt.Sprintf("Component file content read successfully for word: %s at %s", component_name, componentFile))
 
-			// 3d. Add the component content to the content cache
-			contentCache = append(contentCache, string(componentContent))
+			// Add the html content to the html cache
+			htmlCache = append(htmlCache, string(componentContent))
 			maybe_log(debug, fmt.Sprintf("Component content added to cache for word: %s", component_name))
 		}
 
-		// 4a. Add the content file to the cache. So we are in the dir src/<folder_name> and we have the content file in that folder
-		// the name is content.html
+
+		// Read the content of the content.html file and skip if there is an error
 		contentFile := filepath.Join(src_dir, file.Name(), content_filename)
 		contentData, err := os.ReadFile(contentFile)
 		if err != nil {
@@ -162,11 +170,11 @@ func main() {
 		maybe_log(debug, fmt.Sprintf("Content file read successfully: %s", contentFile))
 
 		// Add the content file to the cache
-		contentCache = append(contentCache, string(contentData))
+		htmlCache = append(htmlCache, string(contentData))
 		maybe_log(debug, fmt.Sprintf("Content file added to cache for directory: %s", file.Name()))
 
 		// 6. Add the end content to the cache
-		contentCache = append(contentCache, string(endContent))
+		htmlCache = append(htmlCache, string(endContent))
 		maybe_log(debug, fmt.Sprintf("End content added to cache for directory: %s", file.Name()))
 
 		// 5. Write the cache to the content file
@@ -175,7 +183,7 @@ func main() {
 		maybe_log(debug, fmt.Sprintf("Output file path: %s", outputFile))
 
 		// Write the content cache to the output file
-		if err := os.WriteFile(outputFile, []byte(strings.Join(contentCache, "\n")), 0644); err != nil {
+		if err := os.WriteFile(outputFile, []byte(strings.Join(htmlCache, "\n")), 0644); err != nil {
 			log.Println("Error writing to output file:", outputFile, err)
 			return
 		}
