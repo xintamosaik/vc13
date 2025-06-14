@@ -16,6 +16,10 @@ const (
 	output_dir       = "static"
 )
 
+type HTML string
+
+const endContent HTML = `</body></html>`
+
 type LogLevel int
 
 const (
@@ -24,7 +28,7 @@ const (
 	warn
 )
 
-var log_level = info
+var log_level LogLevel = info
 
 func maybe_log(level LogLevel, message string) {
 	if level < log_level {
@@ -69,9 +73,6 @@ func main() {
 	}
 	maybe_log(debug, "Start file content read successfully:"+startFile)
 
-	// Get the html structure for the end of the html document
-	endContent := "</body></html>" // This is the end of the HTML document
-	
 	// Create the output directory if it does not exist
 	if err := os.MkdirAll(output_dir, os.ModePerm); err != nil {
 		log.Println("Error creating static directory:", err)
@@ -164,13 +165,12 @@ func main() {
 		maybe_log(debug, fmt.Sprintf("Content file added to cache for directory: %s", file.Name()))
 
 		// 6. Add the end content to the cache
-		contentCache = append(contentCache, endContent)
+		contentCache = append(contentCache, string(endContent))
 		maybe_log(debug, fmt.Sprintf("End content added to cache for directory: %s", file.Name()))
 
 		// 5. Write the cache to the content file
 		// Naming: <folder_name> in src -> <content_filename>.html and be put in static/
 		outputFile := filepath.Join(output_dir, file.Name()+".html")
-
 		maybe_log(debug, fmt.Sprintf("Output file path: %s", outputFile))
 
 		// Write the content cache to the output file
