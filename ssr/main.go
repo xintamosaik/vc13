@@ -20,7 +20,7 @@ type LogLevel int
 const (
 	debug LogLevel = iota
 	info
-	error
+	warn
 )
 
 var log_level = info // Default log level
@@ -67,7 +67,7 @@ func main() {
 	// 2. Read the config file
 	// 3. Try to get html files for all the words in the config file
 	// 4. cache them
-
+	// 4a Add the actual content.html file contents to the cache
 	// 5. add the end.html file to the cache. Actually just add "</body></html>" to the cache.
 	// 6. Write the cache to the content file (prepared)
 
@@ -162,8 +162,23 @@ func main() {
 
 		}
 
-		// 4. Add the end content to the cache
+		// 4a. Add the content file to the cache. So we are in the dir src/<folder_name> and we have the content file in that folder
+		// the name is content.html
+		contentFile := fmt.Sprintf("%s/%s/%s", src_dir, file.Name(), content_filename)
+		contentData, err := os.ReadFile(contentFile)
+		if err != nil {
+			fmt.Println("Error reading content file:", contentFile, err)
+			continue
+		}
+		log(debug, fmt.Sprintf("Content file read successfully: %s", contentFile))
+		// Add the content file to the cache
+		contentCache = append(contentCache, string(contentData))
+		log(debug, fmt.Sprintf("Content file added to cache for directory: %s", file.Name()))
+
+
+		// 6. Add the end content to the cache
 		contentCache = append(contentCache, endContent)
+
 
 		log(debug, fmt.Sprintf("End content added to cache for directory: %s", file.Name()))
 		// 5. Write the cache to the content file
@@ -184,6 +199,7 @@ func main() {
 		log(info, fmt.Sprintf("Successfully processed directory: %s, output written to: %s", file.Name(), outputFile))
 		fmt.Println("Successfully processed directory:", file.Name(), "Output written to:", outputFile)
 		// Reset the content cache for the next directory
+
 
 	}
 
