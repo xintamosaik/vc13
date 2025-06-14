@@ -3,8 +3,8 @@ package components
 templ Navigation() {
 <nav>
     <ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
-        <li><a href="/">Home</a></li>
-        <li><a href="/about.html">About</a></li>
+        @NavigationLink("Home", "/")
+        @NavigationLink("Blog", "/blog")
     </ul>
 </nav>
 }
