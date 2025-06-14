@@ -116,31 +116,31 @@ func main() {
 			fmt.Println("Config file content read successfully:", configPath)
 		}
 
-		// 3. Try to get html files for all the words in the config file
-		// 3a. make words out of the config file. Each line has one word
-		words := make([]string, 0)
+		// 3. Try to get html files for all the component_names in the config file
+		// 3a. make component_names out of the config file. Each line has one word
+		component_names := make([]string, 0)
 		lines := strings.Split(string(configContent), "\n")
 		for _, line := range lines {
 			line = strings.TrimSpace(line) // Remove leading/trailing whitespace
 			if line != "" {                // Skip empty lines
-				words = append(words, line)
+				component_names = append(component_names, line)
 			}
 		}
 		if log_level == "debug" {
-			fmt.Println("Words extracted from config file:", words)
+			fmt.Println("Words extracted from config file:", component_names)
 		}
 
 		// 3b. For each word, check if there is a file with that name in the components directory
-		for _, word := range words {
+		for _, component_name := range component_names {
 	
 			// is there a file named word + ".html" in the components directory?
-			componentFile := fmt.Sprintf("%s/%s.html", components_dir, word)
+			componentFile := fmt.Sprintf("%s/%s.html", components_dir, component_name)
 			if _, err := os.Stat(componentFile); os.IsNotExist(err) {
-				fmt.Println("Component file does not exist for word:", word, "at", componentFile)
+				fmt.Println("Component file does not exist for word:", component_name, "at", componentFile)
 				continue
 			}
 			if log_level == "debug" {
-				fmt.Println("Component file found for word:", word, "at", componentFile)
+				fmt.Println("Component file found for word:", component_name, "at", componentFile)
 			}
 			// 3c. Read the component file
 			componentContent, err := os.ReadFile(componentFile)
@@ -149,13 +149,13 @@ func main() {
 				continue
 			}
 			if log_level == "debug" {
-				fmt.Println("Component file content read successfully for word:", word, "at", componentFile)
+				fmt.Println("Component file content read successfully for word:", component_name, "at", componentFile)
 			}
 
 			// 3d. Add the component content to the content cache
 			contentCache = append(contentCache, string(componentContent))
 			if log_level == "debug" {
-				fmt.Println("Component content added to cache for word:", word)
+				fmt.Println("Component content added to cache for word:", component_name)
 			}
 
 
