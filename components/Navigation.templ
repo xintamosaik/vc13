@@ -2,20 +2,14 @@ package components
 
 templ Navigation() {
 	<style>
-        nav a {
-            text-decoration: none;
-
-        }
-
-        nav a:hover {
-            text-decoration: underline;
-        }
+        nav.main-navigation a { text-decoration: none; }
+        nav.main-navigation a:hover { text-decoration: underline; }
     </style>
-	<nav>
+	<nav aria-label="Main Navigation" role="navigation" class="main-navigation">
 		<ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
 			@NavigationLink("Home", "./index.html")
 			@NavigationLink("About", "./about.html")
-            @NavigationLink("Example", "./example.html")
+			@NavigationLink("Example", "./example.html")
 		</ul>
 	</nav>
 }
