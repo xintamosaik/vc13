@@ -1,10 +1,20 @@
 package components
 
 templ Navigation() {
-<nav>
-    <ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
-        @NavigationLink("Home", "./index.html")
-        @NavigationLink("About", "./about.html")
-    </ul>
-</nav>
+	<style>
+        nav a {
+            text-decoration: none;
+
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+	<nav>
+		<ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
+			@NavigationLink("Home", "./index.html")
+			@NavigationLink("About", "./about.html")
+		</ul>
+	</nav>
 }

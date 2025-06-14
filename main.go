@@ -7,6 +7,7 @@ import (
 
 	"github.com/a-h/templ"
 	"grapefrui.xyz/vc13/components"
+	"grapefrui.xyz/vc13/views"
 )
 
 const (
@@ -32,15 +33,24 @@ func save_document(filename string, content templ.Component) error {
 
 func main() {
 
-	example := components.Example()
+	welcome := views.Welcome()
+	welcome_with_navigation := components.WithNavigation(welcome)
 
-	with_navigation := components.WithNavigation(example)
-
-	if err := save_document(output_dir+"/about.html", with_navigation); err != nil {
+	if err := save_document(output_dir+"/index.html", welcome_with_navigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
-	if err := save_document(output_dir+"/index.html", with_navigation); err != nil {
+	example := views.Example()
+
+	example_with_navigation := components.WithNavigation(example)
+
+	if err := save_document(output_dir+"/example.html", example_with_navigation); err != nil {
+		log.Fatalf("failed to save document: %v", err)
+	}
+
+	about := views.About()
+	about_with_navigation := components.WithNavigation(about)
+	if err := save_document(output_dir+"/about.html", about_with_navigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
