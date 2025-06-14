@@ -175,10 +175,8 @@ func main() {
 		contentCache = append(contentCache, string(contentData))
 		log(debug, fmt.Sprintf("Content file added to cache for directory: %s", file.Name()))
 
-
 		// 6. Add the end content to the cache
 		contentCache = append(contentCache, endContent)
-
 
 		log(debug, fmt.Sprintf("End content added to cache for directory: %s", file.Name()))
 		// 5. Write the cache to the content file
@@ -199,7 +197,6 @@ func main() {
 		log(info, fmt.Sprintf("Successfully processed directory: %s, output written to: %s", file.Name(), outputFile))
 		fmt.Println("Successfully processed directory:", file.Name(), "Output written to:", outputFile)
 		// Reset the content cache for the next directory
-
 
 	}
 
