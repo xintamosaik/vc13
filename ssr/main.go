@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-// This will do SSR
-// global vars
 const (
 	src_dir          = "src"
 	components_dir   = "components"
@@ -18,7 +16,6 @@ const (
 	output_dir       = "static"
 )
 
-// enum for log levels
 type LogLevel int
 
 const (
@@ -27,30 +24,31 @@ const (
 	warn
 )
 
-var log_level = info // Default log level
+var log_level = info
+
 func maybe_log(level LogLevel, message string) {
 	if level < log_level {
-		return // Skip logging if the level is lower than the current log level
+		return
 	}
 
 	log.Println(message)
-
 }
+
 func main() {
 
-	// Is there even a src directory?
+	// Return, if there is no src directory
 	if _, err := os.Stat(src_dir); os.IsNotExist(err) {
 		maybe_log(debug, fmt.Sprintf("Source directory does not exist: %s", src_dir))
 		return
 	}
 
-	// Is there even a components directory?
+	// Return, if there is no components directory
 	if _, err := os.Stat(components_dir); os.IsNotExist(err) {
 		log.Println("Components directory does not exist:", components_dir)
 		return
 	}
 
-	// Are there even directories in the src directory?
+	// Return, if there is no content.html file in the components directory
 	files, err := os.ReadDir(src_dir)
 	if err != nil {
 		log.Println("Error reading source directory:", err)
@@ -62,7 +60,7 @@ func main() {
 	}
 	maybe_log(debug, fmt.Sprintf("Source directory exists and contains %d files", len(files)))
 
-	// We need the html structure which is in start.html file. It's mostly html boilerplate but also includes <head>
+	// Get the html structure for the start of the html document
 	startFile := filepath.Join(components_dir, "start.html")
 	startContent, err := os.ReadFile(startFile)
 	if err != nil {
@@ -71,13 +69,16 @@ func main() {
 	}
 	maybe_log(debug, "Start file content read successfully:"+startFile)
 
-	// After we are done we need the end of the html document
+	// Get the html structure for the end of the html document
 	endContent := "</body></html>" // This is the end of the HTML document
+	
+	// Create the output directory if it does not exist
 	if err := os.MkdirAll(output_dir, os.ModePerm); err != nil {
 		log.Println("Error creating static directory:", err)
 		return
 	}
-	// we loop over the folders in the src directory
+
+	// Loop over each folder in the source directory
 	for _, file := range files {
 		contentCache := make([]string, 0)                         // This will hold the content for the current folder
 		contentCache = append(contentCache, string(startContent)) // Start with the start content
