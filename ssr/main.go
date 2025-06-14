@@ -84,13 +84,14 @@ func main() {
 		contentCache := make([]string, 0)                         // This will hold the content for the current folder
 		contentCache = append(contentCache, string(startContent)) // Start with the start content
 
+		// Skip if the file is not a directory
 		if file.IsDir() == false {
 			log.Println("Skipping non-directory file in source:", file.Name())
 			continue
 		}
 		maybe_log(debug, fmt.Sprintf("Processing directory: %s", file.Name()))
 
-		// Check if the content file exists in the directory
+		
 		contentPath := filepath.Join(src_dir, file.Name(), content_filename)
 		if _, err := os.Stat(contentPath); os.IsNotExist(err) {
 			log.Println("Content file does not exist in directory:", contentPath)
