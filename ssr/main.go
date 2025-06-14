@@ -9,18 +9,33 @@ import (
 // This will do SSR
 // global vars
 
-var log_level = "info"
 var components_dir = "components"
 var src_dir = "src"
 var content_filename = "content.html"
 var config_filename = "config.txt"
 
+// enum for log levels
+type LogLevel int
+
+const (
+	debug LogLevel = iota
+	info
+	error
+)
+
+var log_level = info // Default log level
+func log(level LogLevel, message string) {
+	if level < log_level {
+		return // Skip logging if the level is lower than the current log level
+	}
+
+	fmt.Printf("%s\n", message)
+}
 func main() {
-	
 
 	// Is there even a src directory?
 	if _, err := os.Stat(src_dir); os.IsNotExist(err) {
-		fmt.Println("Source directory does not exist:", src_dir)
+		log(debug, fmt.Sprintf("Source directory does not exist: %s", src_dir))
 		return
 	}
 
@@ -41,9 +56,10 @@ func main() {
 		return
 	}
 	// So there are folders in the src dir. Good.
-	if log_level == "debug" {
-		fmt.Println("Source directory exists and contains files:", src_dir)
-	}
+	//if log_level == "debug" {
+	//	fmt.Println("Source directory exists and contains files:", src_dir)
+	//}
+	log(debug, fmt.Sprintf("Source directory exists and contains %d files", len(files)))
 
 	// It works like this:
 	// 0. cache the content of components/start.html (done)
@@ -63,27 +79,22 @@ func main() {
 		return
 	}
 
-	if log_level == "debug" {
-		fmt.Println("Start file content read successfully:", startFile)
-	}
-	
+	log(debug, "Start file content read successfully:"+startFile)
 
 	// 5. endContent:
-	endContent := "</body></html>"                 // This is the end of the HTML document
-
+	endContent := "</body></html>" // This is the end of the HTML document
 
 	// we loop over the folders in the src directory
 	for _, file := range files {
-		contentCache := make([]string, 0) // This will hold the content for the current folder
+		contentCache := make([]string, 0)                         // This will hold the content for the current folder
 		contentCache = append(contentCache, string(startContent)) // Start with the start content
 
 		if file.IsDir() == false {
 			fmt.Println("Skipping non-directory file in source:", file.Name())
 			continue
 		}
-		if log_level == "debug" {
-			fmt.Println("Found directory in source:", file.Name())
-		}
+
+		log(debug, fmt.Sprintf("Processing directory: %s", file.Name()))
 
 		// 1. Read the content in the folder
 		// Check if the content file exists in the directory
@@ -92,9 +103,8 @@ func main() {
 			fmt.Println("Content file does not exist in directory:", contentPath)
 			continue
 		}
-		if log_level == "debug" {
-			fmt.Println("Content file found:", contentPath)
-		}
+
+		log(debug, fmt.Sprintf("Content file found: %s", contentPath))
 
 		// 2. Read the config file
 		// Check if the config file exists in the directory
@@ -103,19 +113,16 @@ func main() {
 			fmt.Println("Config file does not exist in directory:", configPath)
 			continue
 		}
-		if log_level == "debug" {
-			fmt.Println("Config file found:", configPath)
-		}
+
+		log(debug, fmt.Sprintf("Config file found: %s", configPath))
 
 		configContent, err := os.ReadFile(configPath)
 		if err != nil {
 			fmt.Println("Error reading config file:", configPath, err)
 			continue
 		}
-		if log_level == "debug" {
-			fmt.Println("Config file content read successfully:", configPath)
-		}
 
+		log(debug, fmt.Sprintf("Config file content read successfully: %s", configPath))
 		// 3. Try to get html files for all the component_names in the config file
 		// 3a. make component_names out of the config file. Each line has one word
 		component_names := make([]string, 0)
@@ -126,47 +133,39 @@ func main() {
 				component_names = append(component_names, line)
 			}
 		}
-		if log_level == "debug" {
-			fmt.Println("Words extracted from config file:", component_names)
-		}
 
+		log(debug, fmt.Sprintf("Extracted %d words from config file", len(component_names)))
 		// 3b. For each word, check if there is a file with that name in the components directory
 		for _, component_name := range component_names {
-	
+
 			// is there a file named word + ".html" in the components directory?
 			componentFile := fmt.Sprintf("%s/%s.html", components_dir, component_name)
 			if _, err := os.Stat(componentFile); os.IsNotExist(err) {
 				fmt.Println("Component file does not exist for word:", component_name, "at", componentFile)
 				continue
 			}
-			if log_level == "debug" {
-				fmt.Println("Component file found for word:", component_name, "at", componentFile)
-			}
+
+			log(debug, fmt.Sprintf("Component file found for word: %s at %s", component_name, componentFile))
 			// 3c. Read the component file
 			componentContent, err := os.ReadFile(componentFile)
 			if err != nil {
 				fmt.Println("Error reading component file:", componentFile, err)
 				continue
 			}
-			if log_level == "debug" {
-				fmt.Println("Component file content read successfully for word:", component_name, "at", componentFile)
-			}
+
+			log(debug, fmt.Sprintf("Component file content read successfully for word: %s at %s", component_name, componentFile))
 
 			// 3d. Add the component content to the content cache
 			contentCache = append(contentCache, string(componentContent))
-			if log_level == "debug" {
-				fmt.Println("Component content added to cache for word:", component_name)
-			}
 
-
+			log(debug, fmt.Sprintf("Component content added to cache for word: %s", component_name))
 
 		}
 
 		// 4. Add the end content to the cache
 		contentCache = append(contentCache, endContent)
-		if log_level == "debug" {
-			fmt.Println("End content added to cache for directory:", file.Name())
-		}
+
+		log(debug, fmt.Sprintf("End content added to cache for directory: %s", file.Name()))
 		// 5. Write the cache to the content file
 		// Naming: <folder_name> in src -> <content_filename>.html and be put in static/
 		outputFile := fmt.Sprintf("static/%s.html", file.Name())
@@ -174,21 +173,17 @@ func main() {
 			fmt.Println("Error creating static directory:", err)
 			return
 		}
-		if log_level == "debug" {
-			fmt.Println("Static directory created or already exists")
-		}
+
+		log(debug, fmt.Sprintf("Output file path: %s", outputFile))
 		// Write the content cache to the output file
 		if err := os.WriteFile(outputFile, []byte(strings.Join(contentCache, "\n")), 0644); err != nil {
 			fmt.Println("Error writing to output file:", outputFile, err)
 			return
 		}
-		if log_level == "debug" {
-			fmt.Println("Output file written successfully:", outputFile)
-		}
+
+		log(info, fmt.Sprintf("Successfully processed directory: %s, output written to: %s", file.Name(), outputFile))
 		fmt.Println("Successfully processed directory:", file.Name(), "Output written to:", outputFile)
 		// Reset the content cache for the next directory
-		
-		
 
 	}
 
