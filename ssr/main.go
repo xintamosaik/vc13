@@ -81,7 +81,7 @@ func main() {
 
 	// Loop over each folder in the source directory
 	for _, file := range files {
-		htmlCache := make([]string, 0)                         // This will hold the content for the current folder
+		htmlCache := make([]string, 0)                      // This will hold the content for the current folder
 		htmlCache = append(htmlCache, string(startContent)) // Start with the start content
 
 		// Skip if the file is not a directory
@@ -99,7 +99,6 @@ func main() {
 		}
 		maybe_log(debug, fmt.Sprintf("Content file found: %s", contentPath))
 
-		
 		// Skip if the config.txt file does not exist in the directory
 		configPath := filepath.Join(src_dir, file.Name(), config_filename)
 		if _, err := os.Stat(configPath); os.IsNotExist(err) {
@@ -116,7 +115,6 @@ func main() {
 		}
 		maybe_log(debug, fmt.Sprintf("Config file content read successfully: %s", configPath))
 
-		
 		// Extract all filenames (words) from the config file
 		component_names := make([]string, 0)
 		lines := strings.Split(string(configContent), "\n")
@@ -128,7 +126,7 @@ func main() {
 		}
 		maybe_log(debug, fmt.Sprintf("Extracted %d words from config file", len(component_names)))
 
-		// Skip if there are no valid component names in the config file	
+		// Skip if there are no valid component names in the config file
 		if len(component_names) == 0 {
 			log.Println("No valid component names found in config file:", configPath)
 			continue
@@ -159,7 +157,6 @@ func main() {
 			maybe_log(debug, fmt.Sprintf("Component content added to cache for word: %s", component_name))
 		}
 
-
 		// Read the content of the content.html file and skip if there is an error
 		contentFile := filepath.Join(src_dir, file.Name(), content_filename)
 		contentData, err := os.ReadFile(contentFile)
@@ -173,16 +170,14 @@ func main() {
 		htmlCache = append(htmlCache, string(contentData))
 		maybe_log(debug, fmt.Sprintf("Content file added to cache for directory: %s", file.Name()))
 
-		// 6. Add the end content to the cache
+		// Add the end html content to the cache
 		htmlCache = append(htmlCache, string(endContent))
 		maybe_log(debug, fmt.Sprintf("End content added to cache for directory: %s", file.Name()))
 
-		// 5. Write the cache to the content file
-		// Naming: <folder_name> in src -> <content_filename>.html and be put in static/
+		// Write the cache to the content file. E.g. static/about.html
 		outputFile := filepath.Join(output_dir, file.Name()+".html")
 		maybe_log(debug, fmt.Sprintf("Output file path: %s", outputFile))
-
-		// Write the content cache to the output file
+		// Return if there is an error writing to the output file
 		if err := os.WriteFile(outputFile, []byte(strings.Join(htmlCache, "\n")), 0644); err != nil {
 			log.Println("Error writing to output file:", outputFile, err)
 			return
@@ -190,6 +185,5 @@ func main() {
 		maybe_log(info, fmt.Sprintf("Successfully processed directory: %s, output written to: %s", file.Name(), outputFile))
 
 		log.Println("Successfully processed directory:", file.Name(), "Output written to:", outputFile)
-		// Reset the content cache for the next directory
 	}
 }
