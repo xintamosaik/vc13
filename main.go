@@ -40,4 +40,8 @@ func main() {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
+	if err := save_document(output_dir+"/index.html", with_navigation); err != nil {
+		log.Fatalf("failed to save document: %v", err)
+	}
+
 }
