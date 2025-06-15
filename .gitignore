@@ -1,4 +1,5 @@
 static
 components/*.go
 views/*.go
+layouts/*.go
 tmp/
