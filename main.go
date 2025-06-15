@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/a-h/templ"
-	"grapefrui.xyz/vc13/components"
+	"grapefrui.xyz/vc13/layouts"
 	"grapefrui.xyz/vc13/views"
 )
 
@@ -21,7 +21,7 @@ func save_document(filename string, content templ.Component) error {
 		return err
 	}
 
-	err = components.Document(content).Render(context.Background(), file)
+	err = layouts.Document(content).Render(context.Background(), file)
 	if err != nil {
 		log.Fatalf("failed to write output file: %v", err)
 		return err
@@ -34,51 +34,44 @@ func save_document(filename string, content templ.Component) error {
 func main() {
 
 	welcome := views.Welcome()
-	welcome_with_navigation := components.WithNavigation(welcome)
+	welcome_with_navigation := layouts.WithNavigation(welcome)
 
 	if err := save_document(output_dir+"/index.html", welcome_with_navigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
-	// example := views.Example()
-
-	// example_with_navigation := components.WithNavigation(example)
-
-	// if err := save_document(output_dir+"/example.html", example_with_navigation); err != nil {
-	// 	log.Fatalf("failed to save document: %v", err)
-	// }
 	drafts := views.Drafts()
-	drafts_with_navigation := components.WithNavigation(drafts)
+	drafts_with_navigation := layouts.WithNavigation(drafts)
 	if err := save_document(output_dir+"/drafts.html", drafts_with_navigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
 	signals := views.Signals()
-	signals_with_navigation := components.WithNavigation(signals)
+	signals_with_navigation := layouts.WithNavigation(signals)
 	if err := save_document(output_dir+"/signals.html", signals_with_navigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
 	intel := views.Intel()
-	intel_with_navigation := components.WithNavigation(intel)
+	intel_with_navigation := layouts.WithNavigation(intel)
 	if err := save_document(output_dir+"/intel.html", intel_with_navigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
 	about := views.About()
-	about_with_navigation := components.WithNavigation(about)
+	about_with_navigation := layouts.WithNavigation(about)
 	if err := save_document(output_dir+"/about.html", about_with_navigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
 	help := views.Help()
-	help_with_navigation := components.WithNavigation(help)
+	help_with_navigation := layouts.WithNavigation(help)
 	if err := save_document(output_dir+"/help.html", help_with_navigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
 	contact := views.Contact()
-	contact_with_navigation := components.WithNavigation(contact)
+	contact_with_navigation := layouts.WithNavigation(contact)
 	if err := save_document(output_dir+"/contact.html", contact_with_navigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}

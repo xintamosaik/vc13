@@ -1,15 +1,13 @@
 package views
 
 import "grapefrui.xyz/vc13/components"
-import "grapefrui.xyz/vc13/types"
 
-func menuItems() []types.MenuItem {
-    return []types.MenuItem{
-        {Name: "CV Drafts", URL: "/drafts.cvs.html"},
-        {Name: "CL Drafts", URL: "/drafts/cls.html"},
-        {Name: "Email Drafts", URL: "/drafts/emails.html"},
-    }
-}
 templ Drafts() {
-    @components.Navigation(menuItems())
+	<nav aria-label="Main Navigation" role="navigation" class="main-navigation">
+		<ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
+			@components.NavigationLink("CV Drafts", "/drafts.cvs.html")
+			@components.NavigationLink("CL Drafts", "/drafts/cls.html")
+			@components.NavigationLink("Email Drafts", "/drafts/emails.html")
+		</ul>
+	</nav>
 }

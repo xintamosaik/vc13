@@ -1,17 +1,21 @@
 package components
 
-import "grapefrui.xyz/vc13/types"
-
-templ Navigation(links []types.MenuItem) {
+templ NavigationMain() {
 	<style>
         nav.main-navigation a { text-decoration: none; }
         nav.main-navigation a:hover { text-decoration: underline; }
     </style>
 	<nav aria-label="Main Navigation" role="navigation" class="main-navigation">
 		<ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
-			for _, item := range links {
-				@NavigationLink(item.Name, item.URL)
-			}
+	
+			@NavigationLink("Home", "/index.html")
+			@NavigationLink("Drafts", "/drafts.html")
+			@NavigationLink("Signals", "/signals.html")
+			@NavigationLink("Intel", "/intel.html")
+			@NavigationLink("About", "/about.html")
+			@NavigationLink("Help", "/help.html")
+			@NavigationLink("Contact", "/contact.html")
+
 		</ul>
 	</nav>
 }

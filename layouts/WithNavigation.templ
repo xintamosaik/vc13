@@ -1,0 +1,12 @@
+package layouts
+
+import "grapefrui.xyz/vc13/components"
+
+templ WithNavigation(content templ.Component) {
+	<header>
+		@components.NavigationMain()
+	</header>
+	<main>
+		@content
+	</main>
+}
