@@ -37,52 +37,26 @@ func main() {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
-	drafts := views.Drafts()
-	drafts_with_navigation := layouts.WithNavigation(drafts)
-	if err := save_document(output_dir+"/drafts.html", drafts_with_navigation); err != nil {
-		log.Fatalf("failed to save document: %v", err)
+	pages := []struct {
+		filename string
+		viewFunc func() templ.Component
+	}{
+		{"drafts.html", views.Drafts},
+		{"signals.html", views.Signals},
+		{"intel.html", views.Intel},
+		{"intel_upload_file.html", views.IntelUploadFile},
+		{"intel_submit_text.html", views.IntelSubmitText},
+		{"about.html", views.About},
+		{"help.html", views.Help},
+		{"contact.html", views.Contact},
 	}
 
-	signals := views.Signals()
-	signals_with_navigation := layouts.WithNavigation(signals)
-	if err := save_document(output_dir+"/signals.html", signals_with_navigation); err != nil {
-		log.Fatalf("failed to save document: %v", err)
-	}
-
-	intel := views.Intel()
-	intel_with_navigation := layouts.WithNavigation(intel)
-	if err := save_document(output_dir+"/intel.html", intel_with_navigation); err != nil {
-		log.Fatalf("failed to save document: %v", err)
-	}
-
-	intel_new_file := views.IntelUploadFile()
-	intel_new_file_with_nav := layouts.WithNavigation(intel_new_file)
-	if err := save_document(output_dir+"/intel_upload_file.html", intel_new_file_with_nav); err != nil {
-		log.Fatalf("failed to save document: %v", err)
-	}
-
-	intel_new_text := views.IntelSubmitText()
-	intel_new_text_with_nav := layouts.WithNavigation(intel_new_text)
-	if err := save_document(output_dir+"/intel_submit_text.html", intel_new_text_with_nav); err != nil {
-		log.Fatalf("failed to save document: %v", err)
-	}
-
-	about := views.About()
-	about_with_navigation := layouts.WithNavigation(about)
-	if err := save_document(output_dir+"/about.html", about_with_navigation); err != nil {
-		log.Fatalf("failed to save document: %v", err)
-	}
-
-	help := views.Help()
-	help_with_navigation := layouts.WithNavigation(help)
-	if err := save_document(output_dir+"/help.html", help_with_navigation); err != nil {
-		log.Fatalf("failed to save document: %v", err)
-	}
-
-	contact := views.Contact()
-	contact_with_navigation := layouts.WithNavigation(contact)
-	if err := save_document(output_dir+"/contact.html", contact_with_navigation); err != nil {
-		log.Fatalf("failed to save document: %v", err)
+	for _, page := range pages {
+		content := page.viewFunc()
+		page_with_navigation := layouts.WithNavigation(content)
+		if err := save_document(output_dir+"/"+page.filename, page_with_navigation); err != nil {
+			log.Fatalf("failed to save document: %v", err)
+		}
 	}
 
 	log.Println("Static files generated successfully in", output_dir)
