@@ -1,7 +1,15 @@
 package views
 
+import "grapefrui.xyz/vc13/components"
+import "grapefrui.xyz/vc13/types"
 
+func menuItems() []types.MenuItem {
+    return []types.MenuItem{
+        {Name: "CV Drafts", URL: "/drafts.cvs.html"},
+        {Name: "CL Drafts", URL: "/drafts/cls.html"},
+        {Name: "Email Drafts", URL: "/drafts/emails.html"},
+    }
+}
 templ Drafts() {
-    <h1>Drafts</h1>
-    
+    @components.Navigation(menuItems())
 }

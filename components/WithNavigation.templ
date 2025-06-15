@@ -1,12 +1,24 @@
 package components
 
-templ WithNavigation(content templ.Component) {
-	
-		<header>
-			@Navigation()
-		</header>
-		<main>
-			@content
-		</main>
+import "grapefrui.xyz/vc13/types"
 
+func mainLinks() []types.MenuItem {
+	return []types.MenuItem{
+		{Name: "Home", URL: "./index.html"},
+		{Name: "Drafts", URL: "./drafts.html"},
+		{Name: "Signals", URL: "./signals.html"},
+		{Name: "Intel", URL: "./intel.html"},
+		{Name: "About", URL: "./about.html"},
+		{Name: "Help", URL: "./help.html"},
+		{Name: "Contact", URL: "./contact.html"},
+	}
+}
+
+templ WithNavigation(content templ.Component) {
+	<header>
+		@Navigation(mainLinks())
+	</header>
+	<main>
+		@content
+	</main>
 }
