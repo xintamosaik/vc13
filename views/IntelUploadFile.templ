@@ -1,0 +1,17 @@
+package views
+
+import "grapefrui.xyz/vc13/components"
+
+templ IntelUploadFile() {
+	<h1>Upload New Intel</h1>
+	<form action="/intel/upload_file" method="post" enctype="multipart/form-data">
+		<label for="file">Select Intel File:</label>
+		<input type="file" id="file" name="file" accept=".json,.txt,.md" required/>
+		<br/>
+		<button type="submit">Upload</button>
+	</form>
+	<ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
+		@components.NavigationLink("back", "/intel")
+	</ul>
+
+}

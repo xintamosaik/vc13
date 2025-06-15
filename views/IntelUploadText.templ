@@ -1,0 +1,17 @@
+package views
+
+import "grapefrui.xyz/vc13/components"
+
+templ IntelUploadText() {
+	<h1>Upload New Intel</h1>
+	<form action="/intel/upload_text" method="post" enctype="multipart/form-data">
+		<label for="file">Paste Text</label>
+		<br />
+		<textarea id="text" name="text" rows="20" cols="80" required></textarea>
+		<br/>
+		<button type="submit">Submit</button>
+	</form>
+	<ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
+		@components.NavigationLink("back", "/intel")
+	</ul>
+}

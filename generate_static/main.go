@@ -55,6 +55,18 @@ func main() {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
+	intel_new_file := views.IntelUploadFile()
+	intel_new_file_with_nav := layouts.WithNavigation(intel_new_file)
+	if err := save_document(output_dir+"/intel_upload_file.html", intel_new_file_with_nav); err != nil {
+		log.Fatalf("failed to save document: %v", err)
+	}
+
+	intel_new_text := views.IntelUploadText()
+	intel_new_text_with_nav := layouts.WithNavigation(intel_new_text)
+	if err := save_document(output_dir+"/intel_upload_text.html", intel_new_text_with_nav); err != nil {
+		log.Fatalf("failed to save document: %v", err)
+	}
+
 	about := views.About()
 	about_with_navigation := layouts.WithNavigation(about)
 	if err := save_document(output_dir+"/about.html", about_with_navigation); err != nil {
