@@ -24,8 +24,11 @@ func handle_intel_file_upload(w http.ResponseWriter, r *http.Request) {
 	// Handle file upload logic here
 
 	// return intel page
+	intel_upload_file := views.IntelUploadFileSuccessful()
+	intel_upload_file_with_nav := layouts.WithNavigation(intel_upload_file)
+	intel_upload_file_with_nav_document := layouts.Document(intel_upload_file_with_nav)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := create_intel_page().Render(r.Context(), w); err != nil {
+	if err := intel_upload_file_with_nav_document.Render(r.Context(), w); err != nil {
 		http.Error(w, "Failed to render page", http.StatusInternalServerError)
 		log.Printf("Error rendering intel page: %v", err)
 		return
@@ -42,9 +45,12 @@ func handle_intel_text_submit(w http.ResponseWriter, r *http.Request) {
 	// Handle text submission logic here
 
 	// return intel page
+	intel_text_submit := views.IntelSubmitTextSuccessful()
+	intel_text_submit_with_nav := layouts.WithNavigation(intel_text_submit)
+	intel_text_submit_with_nav_document := layouts.Document(intel_text_submit_with_nav)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := create_intel_page().Render(r.Context(), w); err != nil {
+	if err := intel_text_submit_with_nav_document.Render(r.Context(), w); err != nil {
 		http.Error(w, "Failed to render page", http.StatusInternalServerError)
 		log.Printf("Error rendering intel page: %v", err)
 		return

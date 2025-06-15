@@ -1,0 +1,12 @@
+package views
+
+import "grapefrui.xyz/vc13/components"
+
+templ IntelSubmitTextSuccessful() {
+    <h1>Intel Submitted Successfully</h1>
+    <p>Your text has been successfully submitted and will be processed shortly.</p>
+    <ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
+        @components.NavigationLink("Back to Intel", "/intel")
+        @components.NavigationLink("Upload More", "/intel_submit_text.html")
+    </ul>
+}
