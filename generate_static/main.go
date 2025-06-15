@@ -61,7 +61,7 @@ func main() {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
-	intel_new_text := views.IntelUploadText()
+	intel_new_text := views.IntelSubmitText()
 	intel_new_text_with_nav := layouts.WithNavigation(intel_new_text)
 	if err := save_document(output_dir+"/intel_upload_text.html", intel_new_text_with_nav); err != nil {
 		log.Fatalf("failed to save document: %v", err)
