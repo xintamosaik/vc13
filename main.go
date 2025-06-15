@@ -10,10 +10,6 @@ import (
 	"grapefrui.xyz/vc13/views"
 )
 
-const (
-	output_dir = "static"
-)
-
 func save_document(filename string, content templ.Component) error {
 	file, err := os.Create(filename)
 	if err != nil {
@@ -32,6 +28,7 @@ func save_document(filename string, content templ.Component) error {
 }
 
 func main() {
+	const output_dir = "static"
 
 	welcome := views.Welcome()
 	welcome_with_navigation := layouts.WithNavigation(welcome)
