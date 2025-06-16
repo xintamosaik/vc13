@@ -10,7 +10,7 @@ import (
 	"grapefrui.xyz/vc13/views"
 )
 
-func save_document(filename string, content templ.Component) error {
+func saveDocument(filename string, content templ.Component) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		log.Fatalf("failed to create output file: %v", err)
@@ -23,17 +23,20 @@ func save_document(filename string, content templ.Component) error {
 		return err
 	}
 
-	file.Close()
+	err = file.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func main() {
-	const output_dir = "static"
+	const outputDirectory = "static"
 
 	welcome := views.Welcome()
-	welcome_with_navigation := layouts.WithNavigation(welcome)
+	withNavigation := layouts.WithNavigation(welcome)
 
-	if err := save_document(output_dir+"/index.html", welcome_with_navigation); err != nil {
+	if err := saveDocument(outputDirectory+"/index.html", withNavigation); err != nil {
 		log.Fatalf("failed to save document: %v", err)
 	}
 
@@ -53,12 +56,12 @@ func main() {
 
 	for _, page := range pages {
 		content := page.viewFunc()
-		page_with_navigation := layouts.WithNavigation(content)
-		if err := save_document(output_dir+"/"+page.filename, page_with_navigation); err != nil {
+		withNavigation := layouts.WithNavigation(content)
+		if err := saveDocument(outputDirectory+"/"+page.filename, withNavigation); err != nil {
 			log.Fatalf("failed to save document: %v", err)
 		}
 	}
 
-	log.Println("Static files generated successfully in", output_dir)
+	log.Println("Static files generated successfully in", outputDirectory)
 
 }
