@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/a-h/templ"
@@ -43,6 +46,48 @@ func handleIntelFileUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle file upload logic here
+	if err := r.ParseMultipartForm(10 << 20); err != nil { // 10 MB limit
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	br := bufio.NewReader(file)
+	peek, err := br.Peek(512)
+	if err != nil && err != io.EOF {
+		http.Error(w, "Server Error", http.StatusInternalServerError)
+		return
+	}
+	contentType := http.DetectContentType(peek)
+	if !strings.HasPrefix(contentType, "text/") {
+		http.Error(w, "Unsupported file type", http.StatusBadRequest)
+		return
+	}
+
+	defer file.Close()
+	// Create a unique filename based on the current timestamp
+	timestamp := time.Now().UnixNano()
+	filename := fmt.Sprintf("%d.txt", timestamp)
+	path := filepath.Join("data", "intel", filename)
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		http.Error(w, "Server Error", http.StatusInternalServerError)
+		return
+	}
+	outFile, err := os.Create(path)
+	if err != nil {
+		http.Error(w, "Server Error", http.StatusInternalServerError)
+		return
+	}
+	defer outFile.Close()
+	// Copy the uploaded file to the new file
+	if _, err := outFile.ReadFrom(br); err != nil {
+		http.Error(w, "Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	// return intel page
 	view := views.IntelUploadFileSuccessful()
