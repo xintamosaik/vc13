@@ -46,7 +46,7 @@ func main() {
 	}{
 		{"drafts.html", views.Drafts},
 		{"signals.html", views.Signals},
-		{"intel.html", views.Intel},
+	
 		{"intel_upload_file.html", views.IntelUploadFile},
 		{"intel_submit_text.html", views.IntelSubmitText},
 		{"about.html", views.About},
