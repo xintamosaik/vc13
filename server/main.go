@@ -75,6 +75,7 @@ func handleIntelFileUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
+
 	title := sanitizeTitle(r.FormValue("title"))
 	file, _, err := r.FormFile("file")
 	if err != nil {
@@ -135,14 +136,14 @@ func handleIntelTextSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle text submission logic here
-	//  1) Parse the form
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
+
 	title := sanitizeTitle(r.FormValue("title"))
 	text := r.FormValue("text")
-	println("text" + text)
+
 	timestamp := time.Now().UnixNano()
 	filename := fmt.Sprintf("%d_%s.txt", timestamp, title)
 	path := filepath.Join("data", "intel", filename)
