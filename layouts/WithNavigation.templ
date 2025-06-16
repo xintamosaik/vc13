@@ -3,10 +3,12 @@ package layouts
 import "grapefrui.xyz/vc13/components"
 
 templ WithNavigation(content templ.Component) {
-	<header>
+	<header style="display: flex; justify-content: center;">
 		@components.NavigationMain()
+		
 	</header>
-	<main>
+	<hr />
+	<main style="width: min(1200px, 98%); margin: 0 auto;">
 		@content
 	</main>
 }
