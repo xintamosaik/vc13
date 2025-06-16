@@ -170,13 +170,24 @@ func handleIntelTextSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Intel text submitted successfully")
 }
+func refreshIntelPage(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	html := createIntelPage()
+	if err := html.Render(r.Context(), w); err != nil {
+		http.Error(w, "Failed to render page", http.StatusInternalServerError)
+		log.Printf("Error rendering intel page: %v", err)
+		return
+	}
+	log.Println("Intel page refreshed successfully")
+}
 func main() {
 	// Serve static files from the "static" folder
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)
 
-	http.Handle("/intel", templ.Handler(createIntelPage()))
+	http.HandleFunc("/intel", refreshIntelPage)
 	http.HandleFunc("/intel/upload_file", handleIntelFileUpload)
 	http.HandleFunc("/intel/submit_text", handleIntelTextSubmit)
 
