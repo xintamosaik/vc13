@@ -34,7 +34,24 @@ func init() {
 	})
 }
 func createIntelPage() templ.Component {
-	intel := views.Intel()
+	// read the folder data/intel and get all files
+	files, err := os.ReadDir("data/intel")
+	if err != nil {
+		log.Printf("Error reading intel directory: %v", err)
+		return views.Error("Failed to read intel directory")
+	}
+	var intelFiles []string
+	for _, file := range files {
+		if !file.IsDir() {
+			intelFiles = append(intelFiles, file.Name())
+		}
+	}
+	if len(intelFiles) == 0 {
+		log.Println("No intel files found")
+		return views.Error("No intel files found")
+
+	}
+	intel := views.Intel(intelFiles)
 	intelWithNavigation := layouts.WithNavigation(intel)
 	return layouts.Document(intelWithNavigation)
 }
