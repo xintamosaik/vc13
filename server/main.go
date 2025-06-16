@@ -21,6 +21,14 @@ var (
 	db *bbolt.DB
 )
 
+func sanitizeTitle(title string) string {
+	title = strings.TrimSpace(title)
+	title = strings.ReplaceAll(title, " ", "_")
+	title = strings.ReplaceAll(title, "/", "_")
+	title = strings.ReplaceAll(title, "\\", "_")
+	return title
+}
+
 func init() {
 	var err error
 	db, err = bbolt.Open("index.db", 0666, nil)
@@ -67,6 +75,7 @@ func handleIntelFileUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
+	title := sanitizeTitle(r.FormValue("title"))
 	file, _, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
@@ -86,9 +95,9 @@ func handleIntelFileUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer file.Close()
-	// Create a unique filename based on the current timestamp
+	// Create a unique filename based on the timestamp and provided title
 	timestamp := time.Now().UnixNano()
-	filename := fmt.Sprintf("%d.txt", timestamp)
+	filename := fmt.Sprintf("%d_%s.txt", timestamp, title)
 	path := filepath.Join("data", "intel", filename)
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		http.Error(w, "Server Error", http.StatusInternalServerError)
@@ -131,10 +140,11 @@ func handleIntelTextSubmit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
+	title := sanitizeTitle(r.FormValue("title"))
 	text := r.FormValue("text")
 	println("text" + text)
 	timestamp := time.Now().UnixNano()
-	filename := fmt.Sprintf("%d.txt", timestamp)
+	filename := fmt.Sprintf("%d_%s.txt", timestamp, title)
 	path := filepath.Join("data", "intel", filename)
 
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {

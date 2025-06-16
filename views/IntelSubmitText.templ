@@ -3,14 +3,17 @@ package views
 import "grapefrui.xyz/vc13/components"
 
 templ IntelSubmitText() {
-	<h1>Upload New Intel</h1>
-	<form action="/intel/submit_text" method="post" >
-		<label for="file">Paste Text</label>
-		<br/>
-		<textarea id="text" name="text" rows="20" cols="80" required></textarea>
-		<br/>
-		<button type="submit">Submit</button>
-	</form>
+        <h1>Upload New Intel</h1>
+        <form action="/intel/submit_text" method="post" >
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required/>
+                <br/>
+                <label for="file">Paste Text</label>
+                <br/>
+                <textarea id="text" name="text" rows="20" cols="80" required></textarea>
+                <br/>
+                <button type="submit">Submit</button>
+        </form>
 	<ul style="display: flex; list-style: none; gap:2ch; padding-inline-start: 0;">
 		@components.NavigationLink("back", "/intel")
 	</ul>
