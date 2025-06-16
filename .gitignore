@@ -4,3 +4,4 @@ views/*.go
 layouts/*.go
 tmp/
 data/
+index.db
