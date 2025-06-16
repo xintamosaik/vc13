@@ -54,11 +54,7 @@ func createIntelPage() templ.Component {
 			intelFiles = append(intelFiles, file.Name())
 		}
 	}
-	if len(intelFiles) == 0 {
-		log.Println("No intel files found")
-		return views.Error("No intel files found")
 
-	}
 	intel := views.Intel(intelFiles)
 	intelWithNavigation := layouts.WithNavigation(intel)
 	return layouts.Document(intelWithNavigation)
@@ -116,6 +112,22 @@ func handleIntelFileUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// create an index entry in the database
+	db.Update(func(tx *bbolt.Tx) error {
+		bucket := tx.Bucket([]byte("KeywordIndex"))
+		if bucket == nil {
+			return fmt.Errorf("bucket not found")
+		}
+		// Use the title as the key and the filename as the value
+		if err := bucket.Put([]byte(title), []byte(filename)); err != nil {
+			return fmt.Errorf("failed to put entry in bucket: %w", err)
+		}
+		return nil
+	})
+
+	// Log the upload
+	log.Printf("Intel file uploaded: %s, filename: %s", title, filename)
+
 	// return intel page
 	view := views.IntelUploadFileSuccessful()
 	addedNavigation := layouts.WithNavigation(view)
@@ -158,6 +170,20 @@ func handleIntelTextSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// create an index entry in the database
+	db.Update(func(tx *bbolt.Tx) error {
+		bucket := tx.Bucket([]byte("KeywordIndex"))
+		if bucket == nil {
+			return fmt.Errorf("bucket not found")
+		}
+		// Use the title as the key and the filename as the value
+		if err := bucket.Put([]byte(title), []byte(filename)); err != nil {
+			return fmt.Errorf("failed to put entry in bucket: %w", err)
+		}
+		return nil
+	})
+	// Log the submission
+	log.Printf("Intel text submitted: %s, filename: %s", title, filename)
 	// return intel page
 	view := views.IntelSubmitTextSuccessful()
 	withNavigation := layouts.WithNavigation(view)
