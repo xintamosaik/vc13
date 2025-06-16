@@ -1,14 +1,35 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/a-h/templ"
+	"go.etcd.io/bbolt"
 	"grapefrui.xyz/vc13/layouts"
 	"grapefrui.xyz/vc13/views"
 )
 
+var (
+	db *bbolt.DB
+)
+
+func init() {
+	var err error
+	db, err = bbolt.Open("index.db", 0666, nil)
+	if err != nil {
+		log.Fatalf("failed to open BoltDB: %v", err)
+	}
+	// ensure the bucket exists
+	db.Update(func(tx *bbolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte("KeywordIndex"))
+		return err
+	})
+}
 func createIntelPage() templ.Component {
 	intel := views.Intel()
 	intelWithNavigation := layouts.WithNavigation(intel)
@@ -43,6 +64,26 @@ func handleIntelTextSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle text submission logic here
+	//  1) Parse the form
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	text := r.FormValue("text")
+	println("text" + text)
+	timestamp := time.Now().UnixNano()
+	filename := fmt.Sprintf("%d.txt", timestamp)
+	path := filepath.Join("data", "intel", filename)
+
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		http.Error(w, "Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if err := os.WriteFile(path, []byte(text), 0644); err != nil {
+		http.Error(w, "Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	// return intel page
 	view := views.IntelSubmitTextSuccessful()
