@@ -8,8 +8,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
+
+	"unicode/utf8"
 
 	"github.com/a-h/templ"
 	"go.etcd.io/bbolt"
@@ -21,14 +24,30 @@ var (
 	db *bbolt.DB
 )
 
+var sanitizeRe = regexp.MustCompile(`[\s\-/\\\.:?*"<>|'!,;()_]+`)
+
+// sanitizeTitle replaces disallowed characters with '_', collapses multiple
+// underscores, trims any leading/trailing underscores, enforces a 100-char
+// limit, and falls back to "untitled" if the result is empty.
 func sanitizeTitle(title string) string {
 	title = strings.TrimSpace(title)
-	title = strings.ReplaceAll(title, " ", "_")
-	title = strings.ReplaceAll(title, "/", "_")
-	title = strings.ReplaceAll(title, "\\", "_")
+	// collapse any run of whitespace, punctuation or underscores into “_”
+	title = sanitizeRe.ReplaceAllString(title, "_")
+	title = strings.Trim(title, "_")
+
+	// utf-8–safe truncate
+	if len(title) > 100 {
+		cut := 100
+		for !utf8.ValidString(title[:cut]) {
+			cut--
+		}
+		title = title[:cut]
+	}
+	if title == "" {
+		return "untitled"
+	}
 	return title
 }
-
 func init() {
 	var err error
 	db, err = bbolt.Open("index.db", 0666, nil)
