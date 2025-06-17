@@ -7,11 +7,13 @@ templ AnnotateIntel(filename, intel string) {
     <p>{intel}</p>
     <!-- A form to submit a slice of text and a keyword -->
     <form action="/intel/annotate/add" method="post">
-        <input type="hidden" name="intel" value={intel}/>
+        <input type="hidden" name="filename" value={filename}/>
         <label for="text">Text:</label>
+        <br />
         <textarea id="text" name="text" rows="4" cols="50" required></textarea>
         <br/>
         <label for="keyword">Keyword:</label>
+        <br />
         <input type="text" id="keyword" name="keyword" required/>
         <br/>
         <button type="submit">Submit</button>

@@ -278,6 +278,59 @@ func refreshAnnotatePage(w http.ResponseWriter, r *http.Request) {
 	log.Println("Annotation page refreshed successfully")	
 }
 
+func handleAnnotationAdd(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Handle annotation submission logic here
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	filename := r.FormValue("filename")
+	annotation := r.FormValue("annotation")
+	keyword := r.FormValue("keyword")
+
+	if filename == "" || annotation == "" {
+		http.Error(w, "Missing filename or annotation", http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("Adding annotation for %s: %s", filename, annotation)
+
+	// We are using bbolt to store the annotations
+	err := db.Update(func(tx *bbolt.Tx) error {
+		bucket := tx.Bucket([]byte("KeywordIndex"))
+		if bucket == nil {
+			return fmt.Errorf("bucket not found")
+		}
+		// Create a key for the annotation
+		key := fmt.Sprintf("%s_annotation", filename)
+		// Create a value that contains the annotation and keyword
+		value := fmt.Sprintf("%s|%s", annotation, keyword)
+		// Store the annotation in the bucket
+		if err := bucket.Put([]byte(key), []byte(value)); err != nil {
+			return fmt.Errorf("failed to put annotation in bucket: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		http.Error(w, "Failed to add annotation", http.StatusInternalServerError)
+		log.Printf("Error adding annotation for %s: %v", filename, err)
+		return
+	}
+
+
+
+	log.Printf("Annotation added successfully for %s", filename)
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprintln(w, "Annotation added successfully")
+}
+
 func main() {
 	// Serve static files from the "static" folder
 	fs := http.FileServer(http.Dir("static"))
@@ -289,6 +342,9 @@ func main() {
     
 	// A route for anything that starts with /intel/annotate/
 	http.HandleFunc("/intel/annotate/",  refreshAnnotatePage)
+
+	// A route for intel/annotate/add (POST)
+	http.HandleFunc("/intel/annotate/add", handleAnnotationAdd)
 	log.Println("Server listening on http://localhost:8000")
 	if err := http.ListenAndServe(":8000", nil); err != nil {
 		log.Fatal(err)
