@@ -79,11 +79,11 @@ func TestSanitizeTitle_Unicode(t *testing.T) {
 
 func TestSanitizeTitle_ExceedingMaxLength(t *testing.T) {
 	input := ""
-	for i := 0; i < 150; i++ {
+	for range 150 {
 		input += "a"
 	}
 	want := ""
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		want += "a"
 	}
 	got := sanitizeTitle(input)
