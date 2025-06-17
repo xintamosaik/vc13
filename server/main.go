@@ -266,7 +266,7 @@ func refreshAnnotatePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the annotation page view
-	view := views.AnnotateIntel(string(content))
+	view := views.AnnotateIntel(filename, string(content))
 	withNavigation := layouts.WithNavigation(view)
 	html := layouts.Document(withNavigation)
 	if err := html.Render(r.Context(), w); err != nil {
