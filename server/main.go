@@ -228,6 +228,56 @@ func refreshIntelPage(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Intel page refreshed successfully")
 }
+
+func refreshAnnotatePage(w http.ResponseWriter, r *http.Request) {
+	
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	// Extract the filename from the URL path
+	filename := strings.TrimPrefix(r.URL.Path, "/intel/annotate/")
+	if filename == "" {
+		http.Error(w, "File not specified", http.StatusBadRequest)
+		return
+	}
+	log.Println("Refreshing annotation page for file:", filename)
+	// Search for the file in the data/intel directory
+	filePath := filepath.Join("data", "intel", filename)
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}	
+
+	// Load the file
+	file, err := os.Open(filePath)
+	if err != nil {
+		http.Error(w, "Failed to open file", http.StatusInternalServerError)
+		log.Printf("Error opening file %s: %v", filePath, err)
+		return
+	}
+	defer file.Close()
+
+
+	// Read the file content
+	content, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, "Failed to read file", http.StatusInternalServerError)
+		log.Printf("Error reading file %s: %v", filePath, err)
+		return
+	}
+
+	// Create the annotation page view
+	view := views.AnnotateIntel(string(content))
+	withNavigation := layouts.WithNavigation(view)
+	html := layouts.Document(withNavigation)
+	if err := html.Render(r.Context(), w); err != nil {
+		http.Error(w, "Failed to render page", http.StatusInternalServerError)
+		log.Printf("Error rendering annotation page: %v", err)
+		return
+	}
+	log.Printf("Annotation page for %s refreshed successfully", filename)
+	log.Println("Annotation page refreshed successfully")	
+}
+
 func main() {
 	// Serve static files from the "static" folder
 	fs := http.FileServer(http.Dir("static"))
@@ -236,7 +286,9 @@ func main() {
 	http.HandleFunc("/intel", refreshIntelPage)
 	http.HandleFunc("/intel/upload_file", handleIntelFileUpload)
 	http.HandleFunc("/intel/submit_text", handleIntelTextSubmit)
-
+    
+	// A route for anything that starts with /intel/annotate/
+	http.HandleFunc("/intel/annotate/",  refreshAnnotatePage)
 	log.Println("Server listening on http://localhost:8000")
 	if err := http.ListenAndServe(":8000", nil); err != nil {
 		log.Fatal(err)
